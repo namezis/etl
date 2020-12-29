@@ -2006,6 +2006,7 @@
     <None Include="..\..\README.md" />
     <None Include="..\cmake\unit-test_external_project.cmake" />
     <None Include="..\runtests.sh" />
+    <None Include="..\showlog.sh" />
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>

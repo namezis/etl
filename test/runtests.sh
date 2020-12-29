@@ -1,3 +1,4 @@
+clear
 #sudo ntpdate time.windows.com
 cd build
 echo "ETL Tests" > etl_test_log.txt
@@ -25,3 +26,4 @@ export CXX=clang++
 cmake --cmake-clean-cache -DNO_STL=ON ..
 make
 ./etl_tests | tee etl_test_log.txt
+echo "********** Tests Complete **********" >> etl_test_log.txt

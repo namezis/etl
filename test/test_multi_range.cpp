@@ -129,10 +129,10 @@ namespace
     "zero", "one", "two", "three"
   };
 
-  // Outer loop : Iterate from 0 to 6 in steps of 2.
-  // Keep looping while the value is not equal to 8.
-  StepperOuter stepperOuter(2);
-  Outer outer(0, 8, stepperOuter);
+  // Outer loop : Iterate from 4 to 1 in steps of 1.
+  // Keep looping while the value is not equal to 0.
+  // As this is an arithetic type, the step type is automatically deduced.
+  Outer outer(4, 0);
 
   // Middle loop : Iterate from Index(2) to Index(-1).
   // Keep looping while the value is greater than Index(-2).
@@ -143,6 +143,22 @@ namespace
   // Inner loop : Iterate from the first to the last string in the forward_list of strings.
   // Keep looping while the iterator is not equal to strings.end().
   Inner inner(strings.begin(), strings.end());
+
+  template <typename T>
+  struct is_iterator
+  {
+  private:
+
+    static T makeT();
+    typedef void* two_pointers[2];  // sizeof(two_pointers) > sizeof(void *)
+    static two_pointers& test(...); // Common case
+    template<class R> static typename R::iterator_category* test(R); // Iterator
+    template<class R> static void* test(R*); // Pointer
+
+  public:
+
+    static const bool value = sizeof(test(makeT())) == sizeof(void*);
+  };
 
   SUITE(test_multi_range)
   {  
@@ -164,8 +180,8 @@ namespace
       CHECK_EQUAL(16U, middle.number_of_iterations());
       CHECK_EQUAL(4U,  inner.number_of_iterations());
 
-      CHECK_EQUAL(0,             outer.begin());
-      CHECK_EQUAL(8,             outer.end());
+      CHECK_EQUAL(4,             outer.begin());
+      CHECK_EQUAL(0,             outer.end());
       CHECK_EQUAL(outer.begin(), outer.value());
 
       CHECK_EQUAL(Index(2),       middle.begin());
@@ -197,8 +213,8 @@ namespace
       CHECK_EQUAL(16U, middle.number_of_iterations());
       CHECK_EQUAL(4U, inner.number_of_iterations());
 
-      CHECK_EQUAL(0, outer.begin());
-      CHECK_EQUAL(8, outer.end());
+      CHECK_EQUAL(4, outer.begin());
+      CHECK_EQUAL(0, outer.end());
       CHECK_EQUAL(outer.begin(), outer.value());
 
       CHECK_EQUAL(Index(2), middle.begin());
@@ -229,8 +245,8 @@ namespace
       CHECK_EQUAL(16U, middle.number_of_iterations());
       CHECK_EQUAL(4U, inner.number_of_iterations());
 
-      CHECK_EQUAL(0, outer.begin());
-      CHECK_EQUAL(8, outer.end());
+      CHECK_EQUAL(4, outer.begin());
+      CHECK_EQUAL(0, outer.end());
       CHECK_EQUAL(outer.begin(), outer.value());
 
       CHECK_EQUAL(Index(2), middle.begin());
@@ -287,22 +303,22 @@ namespace
 
       std::array results
       {
-          result{ 0,  2, "zero" }, result{ 0,  2, "one" }, result{ 0,  2, "two" }, result{ 0,  2, "three" },
-          result{ 0,  1, "zero" }, result{ 0,  1, "one" }, result{ 0,  1, "two" }, result{ 0,  1, "three" },
-          result{ 0,  0, "zero" }, result{ 0,  0, "one" }, result{ 0,  0, "two" }, result{ 0,  0, "three" },
-          result{ 0, -1, "zero" }, result{ 0, -1, "one" }, result{ 0, -1, "two" }, result{ 0, -1, "three" },
-          result{ 2,  2, "zero" }, result{ 2,  2, "one" }, result{ 2,  2, "two" }, result{ 2,  2, "three" },
-          result{ 2,  1, "zero" }, result{ 2,  1, "one" }, result{ 2,  1, "two" }, result{ 2,  1, "three" },
-          result{ 2,  0, "zero" }, result{ 2,  0, "one" }, result{ 2,  0, "two" }, result{ 2,  0, "three" },
-          result{ 2, -1, "zero" }, result{ 2, -1, "one" }, result{ 2, -1, "two" }, result{ 2, -1, "three" },
           result{ 4,  2, "zero" }, result{ 4,  2, "one" }, result{ 4,  2, "two" }, result{ 4,  2, "three" },
           result{ 4,  1, "zero" }, result{ 4,  1, "one" }, result{ 4,  1, "two" }, result{ 4,  1, "three" },
           result{ 4,  0, "zero" }, result{ 4,  0, "one" }, result{ 4,  0, "two" }, result{ 4,  0, "three" },
           result{ 4, -1, "zero" }, result{ 4, -1, "one" }, result{ 4, -1, "two" }, result{ 4, -1, "three" },
-          result{ 6,  2, "zero" }, result{ 6,  2, "one" }, result{ 6,  2, "two" }, result{ 6,  2, "three" },
-          result{ 6,  1, "zero" }, result{ 6,  1, "one" }, result{ 6,  1, "two" }, result{ 6,  1, "three" },
-          result{ 6,  0, "zero" }, result{ 6,  0, "one" }, result{ 6,  0, "two" }, result{ 6,  0, "three" },
-          result{ 6, -1, "zero" }, result{ 6, -1, "one" }, result{ 6, -1, "two" }, result{ 6, -1, "three" }
+          result{ 3,  2, "zero" }, result{ 3,  2, "one" }, result{ 3,  2, "two" }, result{ 3,  2, "three" },
+          result{ 3,  1, "zero" }, result{ 3,  1, "one" }, result{ 3,  1, "two" }, result{ 3,  1, "three" },
+          result{ 3,  0, "zero" }, result{ 3,  0, "one" }, result{ 3,  0, "two" }, result{ 3,  0, "three" },
+          result{ 3, -1, "zero" }, result{ 3, -1, "one" }, result{ 3, -1, "two" }, result{ 3, -1, "three" },
+          result{ 2,  2, "zero" }, result{ 2,  2, "one" }, result{ 2,  2, "two" }, result{ 2,  2, "three" },
+          result{ 2,  1, "zero" }, result{ 2,  1, "one" }, result{ 2,  1, "two" }, result{ 2,  1, "three" },
+          result{ 2,  0, "zero" }, result{ 2,  0, "one" }, result{ 2,  0, "two" }, result{ 2,  0, "three" },
+          result{ 2, -1, "zero" }, result{ 2, -1, "one" }, result{ 2, -1, "two" }, result{ 2, -1, "three" },
+          result{ 1,  2, "zero" }, result{ 1,  2, "one" }, result{ 1,  2, "two" }, result{ 1,  2, "three" },
+          result{ 1,  1, "zero" }, result{ 1,  1, "one" }, result{ 1,  1, "two" }, result{ 1,  1, "three" },
+          result{ 1,  0, "zero" }, result{ 1,  0, "one" }, result{ 1,  0, "two" }, result{ 1,  0, "three" },
+          result{ 1, -1, "zero" }, result{ 1, -1, "one" }, result{ 1, -1, "two" }, result{ 1, -1, "three" }
       };
 
       size_t i = 0U;
@@ -370,10 +386,10 @@ namespace
 
       std::array results
       {
-          result{ 0,  2, "zero" }, result{ 0,  2, "one" }, result{ 0,  2, "two" }, result{ 0,  2, "three" },
-          result{ 0,  1, "zero" }, result{ 0,  1, "one" }, result{ 0,  1, "two" }, result{ 0,  1, "three" },
-          result{ 0,  0, "zero" }, result{ 0,  0, "one" }, result{ 0,  0, "two" }, result{ 0,  0, "three" },
-          result{ 0, -1, "zero" }, result{ 0, -1, "one" }, result{ 0, -1, "two" }, result{ 0, -1, "three" }
+          result{ 4,  2, "zero" }, result{ 4,  2, "one" }, result{ 4,  2, "two" }, result{ 4,  2, "three" },
+          result{ 4,  1, "zero" }, result{ 4,  1, "one" }, result{ 4,  1, "two" }, result{ 4,  1, "three" },
+          result{ 4,  0, "zero" }, result{ 4,  0, "one" }, result{ 4,  0, "two" }, result{ 4,  0, "three" },
+          result{ 4, -1, "zero" }, result{ 4, -1, "one" }, result{ 4, -1, "two" }, result{ 4, -1, "three" }
       };
 
       size_t i = 0U;

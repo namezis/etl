@@ -29,8 +29,10 @@ SOFTWARE.
 #include "UnitTest++/UnitTest++.h"
 
 #include <string>
+#include <list>
 
 #include "etl/iterator.h"
+#include "etl/list.h"
 
 #include "iterators_for_unit_tests.h"
 #include "data.h"
@@ -516,6 +518,162 @@ namespace
       etl::move_iterator<Item*>::difference_type d = mitr2 - mitr1;
 
       CHECK_EQUAL(1, d);
+    }
+
+    //*************************************************************************
+    TEST(is_iterator)
+    {
+      using StdItr = std::list<int>::const_iterator;
+      using EtlItr = etl::list<int, 10>::const_iterator;
+
+      CHECK(!etl::is_iterator_v<int>);
+      CHECK(etl::is_iterator_v<int*>);
+      CHECK(etl::is_iterator_v<StdItr>);
+      CHECK(etl::is_iterator_v<EtlItr>);
+    }
+
+    //*************************************************************************
+    TEST(is_input_iterator)
+    {
+      CHECK(!etl::is_input_iterator_v<int>);
+      CHECK(!etl::is_input_iterator_v<int*>);
+      CHECK(etl::is_input_iterator_v<input>);
+      CHECK(!etl::is_input_iterator_v<output>);
+      CHECK(!etl::is_input_iterator_v<forward>);
+      CHECK(!etl::is_input_iterator_v<bidirectional>);
+      CHECK(!etl::is_input_iterator_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_output_iterator)
+    {
+      CHECK(!etl::is_output_iterator_v<int>);
+      CHECK(!etl::is_output_iterator_v<int*>);
+      CHECK(!etl::is_output_iterator_v<input>);
+      CHECK(etl::is_output_iterator_v<output>);
+      CHECK(!etl::is_output_iterator_v<forward>);
+      CHECK(!etl::is_output_iterator_v<bidirectional>);
+      CHECK(!etl::is_output_iterator_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_forward_iterator)
+    {
+      CHECK(!etl::is_forward_iterator_v<int>);
+      CHECK(!etl::is_forward_iterator_v<int*>);
+      CHECK(!etl::is_forward_iterator_v<input>);
+      CHECK(!etl::is_forward_iterator_v<output>);
+      CHECK(etl::is_forward_iterator_v<forward>);
+      CHECK(!etl::is_forward_iterator_v<bidirectional>);
+      CHECK(!etl::is_forward_iterator_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_bidirectional_iterator)
+    {
+      CHECK(!etl::is_bidirectional_iterator_v<int>);
+      CHECK(!etl::is_bidirectional_iterator_v<int*>);
+      CHECK(!etl::is_bidirectional_iterator_v<input>);
+      CHECK(!etl::is_bidirectional_iterator_v<output>);
+      CHECK(!etl::is_bidirectional_iterator_v<forward>);
+      CHECK(etl::is_bidirectional_iterator_v<bidirectional>);
+      CHECK(!etl::is_bidirectional_iterator_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_random_iterator)
+    {
+      CHECK(!etl::is_random_iterator_v<int>);
+      CHECK(etl::is_random_iterator_v<int*>);
+      CHECK(!etl::is_random_iterator_v<input>);
+      CHECK(!etl::is_random_iterator_v<output>);
+      CHECK(!etl::is_random_iterator_v<forward>);
+      CHECK(!etl::is_random_iterator_v<bidirectional>);
+      CHECK(etl::is_random_iterator_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_random_access_iterator)
+    {
+      CHECK(!etl::is_random_access_iterator_v<int>);
+      CHECK(etl::is_random_access_iterator_v<int*>);
+      CHECK(!etl::is_random_access_iterator_v<input>);
+      CHECK(!etl::is_random_access_iterator_v<output>);
+      CHECK(!etl::is_random_access_iterator_v<forward>);
+      CHECK(!etl::is_random_access_iterator_v<bidirectional>);
+      CHECK(etl::is_random_access_iterator_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_input_iterator_concept)
+    {
+      CHECK(!etl::is_input_iterator_concept_v<int>);
+      CHECK(etl::is_input_iterator_concept_v<int*>);
+      CHECK(etl::is_input_iterator_concept_v<input>);
+      CHECK(!etl::is_input_iterator_concept_v<output>);
+      CHECK(etl::is_input_iterator_concept_v<forward>);
+      CHECK(etl::is_input_iterator_concept_v<bidirectional>);
+      CHECK(etl::is_input_iterator_concept_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_output_iterator_concept)
+    {
+      CHECK(!etl::is_output_iterator_concept_v<int>);
+      CHECK(etl::is_output_iterator_concept_v<int*>);
+      CHECK(!etl::is_output_iterator_concept_v<input>);
+      CHECK(etl::is_output_iterator_concept_v<output>);
+      CHECK(etl::is_output_iterator_concept_v<forward>);
+      CHECK(etl::is_output_iterator_concept_v<bidirectional>);
+      CHECK(etl::is_output_iterator_concept_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_forward_iterator_concept)
+    {
+      CHECK(!etl::is_forward_iterator_concept_v<int>);
+      CHECK(etl::is_forward_iterator_concept_v<int*>);
+      CHECK(!etl::is_forward_iterator_concept_v<input>);
+      CHECK(!etl::is_forward_iterator_concept_v<output>);
+      CHECK(etl::is_forward_iterator_concept_v<forward>);
+      CHECK(etl::is_forward_iterator_concept_v<bidirectional>);
+      CHECK(etl::is_forward_iterator_concept_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_bidirectional_iterator_concept)
+    {
+      CHECK(!etl::is_bidirectional_iterator_concept_v<int>);
+      CHECK(etl::is_bidirectional_iterator_concept_v<int*>);
+      CHECK(!etl::is_bidirectional_iterator_concept_v<input>);
+      CHECK(!etl::is_bidirectional_iterator_concept_v<output>);
+      CHECK(!etl::is_bidirectional_iterator_concept_v<forward>);
+      CHECK(etl::is_bidirectional_iterator_concept_v<bidirectional>);
+      CHECK(etl::is_bidirectional_iterator_concept_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_random_iterator_concept)
+    {
+      CHECK(!etl::is_random_iterator_concept_v<int>);
+      CHECK(etl::is_random_iterator_concept_v<int*>);
+      CHECK(!etl::is_random_iterator_concept_v<input>);
+      CHECK(!etl::is_random_iterator_concept_v<output>);
+      CHECK(!etl::is_random_iterator_concept_v<forward>);
+      CHECK(!etl::is_random_iterator_concept_v<bidirectional>);
+      CHECK(etl::is_random_iterator_concept_v<random>);
+    }
+
+    //*************************************************************************
+    TEST(is_random_access_iterator_concept)
+    {
+      CHECK(!etl::is_random_access_iterator_concept_v<int>);
+      CHECK(etl::is_random_access_iterator_concept_v<int*>);
+      CHECK(!etl::is_random_access_iterator_concept_v<input>);
+      CHECK(!etl::is_random_access_iterator_concept_v<output>);
+      CHECK(!etl::is_random_access_iterator_concept_v<forward>);
+      CHECK(!etl::is_random_access_iterator_concept_v<bidirectional>);
+      CHECK(etl::is_random_access_iterator_concept_v<random>);
     }
   };
 }

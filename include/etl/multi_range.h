@@ -34,8 +34,12 @@ SOFTWARE.
 #include "platform.h"
 #include "nullptr.h"
 #include "functional.h"
+#include "type_traits.h"
+#include "iterator.h"
 #include "exception.h"
 #include "error_handler.h"
+
+#include "iterator.h"
 
 #undef ETL_FILE
 #define ETL_FILE "57"
@@ -135,7 +139,7 @@ namespace etl
     }
 
     //***************************************************************************
-    ///
+    /// Returns true if the range has completed.
     //***************************************************************************
     bool completed() const
     {
@@ -233,17 +237,11 @@ namespace etl
   };
 
   //***************************************************************************
-  /// multi_range
-  /// \tparam T The type to range over.
+  /// A class to determine the default step type, if possible.
   //***************************************************************************
   template <typename T>
-  class multi_range : public imulti_range
+  struct multi_range_step_types
   {
-  public:
-
-    typedef T        value_type;
-    typedef const T& const_reference;
-
     //***************************************************************************
     /// 
     //***************************************************************************
@@ -261,7 +259,7 @@ namespace etl
     {
       typedef T value_type;
 
-      virtual void operator()(value_type& value)
+      virtual void operator()(value_type& value) ETL_OVERRIDE
       {
         ++value;
       }
@@ -279,7 +277,7 @@ namespace etl
       {
       }
 
-      virtual void operator()(value_type& value)
+      virtual void operator()(value_type& value) ETL_OVERRIDE
       {
         value += step_value;
       }
@@ -294,7 +292,7 @@ namespace etl
     {
       typedef T value_type;
 
-      virtual void operator()(value_type& value)
+      virtual void operator()(value_type& value) ETL_OVERRIDE
       {
         --value;
       }
@@ -312,13 +310,73 @@ namespace etl
       {
       }
 
-      virtual void operator()(value_type& value)
+      virtual void operator()(value_type& value) ETL_OVERRIDE
       {
         value -= step_value;
       }
 
       const value_type step_value;
     };
+
+  protected:
+
+    //***************************************************************************
+    /// Select the default step type based on the range type.
+    //***************************************************************************
+    template <typename U, bool AUTO_STEP>
+    struct default_step;
+
+    //**********************************
+    // Not arithmetic and not random access iterator.
+    template <typename U>
+    struct default_step<U, false>
+    {
+      step_type* operator()(const U& first_, const U& last_)
+      {
+        // Lets just assume we can go forward.
+        return &forward_stepper;
+      }
+
+      forward_step forward_stepper;
+    };
+
+    //**********************************
+    // Arithmetic or random access iterator.
+    template <typename U>
+    struct default_step<U, true>
+    {
+      step_type* operator()(const U& first_, const U& last_)
+      {
+        // Which direction are we stepping?
+        if (first_ < last_)
+        {
+          return &forward_stepper;
+        }
+        else
+        {
+          return &reverse_stepper;
+        }
+      }
+
+      forward_step forward_stepper;
+      reverse_step reverse_stepper;
+    };
+  };
+
+  //***************************************************************************
+  /// multi_range
+  /// \tparam T The type to range over.
+  //***************************************************************************
+  template <typename T>
+  class multi_range : public imulti_range, public multi_range_step_types<T>
+  {
+  public:
+
+    typedef typename multi_range_step_types<T>::step_type step_type;
+    typedef typename multi_range_step_types<T>::template default_step<T, etl::is_arithmetic<T>::value || etl::is_random_access_iterator<T>::value> default_step;
+
+    typedef T        value_type;
+    typedef const T& const_reference;
 
     //***************************************************************************
     /// 
@@ -379,7 +437,7 @@ namespace etl
       : first(first_)
       , last(last_)
       , current(first_)
-      , p_stepper(&default_stepper)
+      , p_stepper(default_stepper(first_, last_))
       , p_compare(&default_compare)
     {
     }
@@ -411,7 +469,7 @@ namespace etl
       : first(first_)
       , last(last_)
       , current(first_)
-      , p_stepper(&default_stepper)
+      , p_stepper(default_stepper(first_, last_))
       , p_compare(&compare_)
     {
     }
@@ -521,8 +579,8 @@ namespace etl
     value_type last;    ///< The terminating value of the range.
     value_type current; ///< The current value of the range.
 
+    default_step default_stepper;
     step_type*   p_stepper;
-    forward_step default_stepper;
 
     compare_type*     p_compare;
     not_equal_compare default_compare;

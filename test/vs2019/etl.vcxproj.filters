@@ -1525,6 +1525,9 @@
     <None Include="..\..\arduino\create_arduino_library.py">
       <Filter>ETL\Arduino</Filter>
     </None>
+    <None Include="..\showlog.sh">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\include\etl\file_error_numbers.txt">

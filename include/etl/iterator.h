@@ -600,80 +600,227 @@ namespace etl
   }
 
 #endif
-
   //***************************************************************************
   // Helper templates.
   //***************************************************************************
+
   template <typename T>
-  struct is_input_iterator
+  struct is_iterator
+  {
+  private:
+
+    // Declaration of a dummy function that returns a T.
+    static T dummy();
+
+    // sizeof(two_pointers) > sizeof(void *)
+    typedef void* two_pointers[2];
+
+    // The default case.
+    static two_pointers& test(...);
+
+    // When T is an STL style iterator.
+    template <typename U>
+    static typename U::iterator_category* test(U);
+
+    // When T is a pointer.
+    template <typename U>
+    static void* test(U*);
+
+  public:
+
+    static ETL_CONSTANT bool value = sizeof(test(dummy())) == sizeof(void*);
+  };
+
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool is_iterator_v = etl::is_iterator<T>::value;
+#endif
+
+  //*******************************************************
+  template <typename T, bool IsIterator = etl::is_iterator<T>::value>
+  struct is_input_iterator;
+
+  template <typename T>
+  struct is_input_iterator<T, false>
+  {
+    static ETL_CONSTANT bool value = false;
+  };
+
+  template <typename T>
+  struct is_input_iterator<T, true>
   {
     static ETL_CONSTANT bool value = etl::is_same<typename etl::iterator_traits<T>::iterator_category, ETL_OR_STD::input_iterator_tag>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
   template <typename T>
-  struct is_output_iterator
+  inline constexpr bool is_input_iterator_v = etl::is_input_iterator<T>::value;
+#endif
+
+  //*******************************************************
+  template <typename T, bool IsIterator = etl::is_iterator<T>::value>
+  struct is_output_iterator;
+  
+  template <typename T>
+  struct is_output_iterator<T, false>
+  {
+    static ETL_CONSTANT bool value = false;
+  };
+
+  template <typename T>
+  struct is_output_iterator<T, true>
   {
     static ETL_CONSTANT bool value = etl::is_same<typename etl::iterator_traits<T>::iterator_category, ETL_OR_STD::output_iterator_tag>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
   template <typename T>
-  struct is_forward_iterator
+  inline constexpr bool is_output_iterator_v = etl::is_output_iterator<T>::value;
+#endif
+
+  //*******************************************************
+  template <typename T, bool IsIterator = etl::is_iterator<T>::value>
+  struct is_forward_iterator;
+
+  template <typename T>
+  struct is_forward_iterator<T, false>
+  {
+    static ETL_CONSTANT bool value = false;
+  };
+
+  template <typename T>
+  struct is_forward_iterator<T, true>
   {
     static ETL_CONSTANT bool value = etl::is_same<typename etl::iterator_traits<T>::iterator_category, ETL_OR_STD::forward_iterator_tag>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
   template <typename T>
-  struct is_bidirectional_iterator
+  inline constexpr bool is_forward_iterator_v = etl::is_forward_iterator<T>::value;
+#endif
+
+  //*******************************************************
+  template <typename T, bool IsIterator = etl::is_iterator<T>::value>
+  struct is_bidirectional_iterator;
+
+  template <typename T>
+  struct is_bidirectional_iterator<T, false>
+  {
+    static ETL_CONSTANT bool value = false;
+  };
+
+  template <typename T>
+  struct is_bidirectional_iterator<T, true>
   {
     static ETL_CONSTANT bool value = etl::is_same<typename etl::iterator_traits<T>::iterator_category, ETL_OR_STD::bidirectional_iterator_tag>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool is_bidirectional_iterator_v = etl::is_bidirectional_iterator<T>::value;
+#endif
+
+  //*******************************************************
   // Deprecated
+  template <typename T, bool IsIterator = etl::is_iterator<T>::value>
+  struct is_random_iterator;
+
   template <typename T>
-  struct is_random_iterator
+  struct is_random_iterator<T, false>
+  {
+    static ETL_CONSTANT bool value = false;
+  };
+
+  template <typename T>
+  struct is_random_iterator<T, true>
   {
     static ETL_CONSTANT bool value = etl::is_same<typename etl::iterator_traits<T>::iterator_category, ETL_OR_STD::random_access_iterator_tag>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
   template <typename T>
-  struct is_random_access_iterator
+  inline constexpr bool is_random_iterator_v = etl::is_random_iterator<T>::value;
+#endif
+
+  //*******************************************************
+  template <typename T, bool IsIterator = etl::is_iterator<T>::value>
+  struct is_random_access_iterator;
+
+  template <typename T>
+  struct is_random_access_iterator<T, false>
+  {
+    static ETL_CONSTANT bool value = false;
+  };
+
+  template <typename T>
+  struct is_random_access_iterator<T, true>
   {
     static ETL_CONSTANT bool value = etl::is_same<typename etl::iterator_traits<T>::iterator_category, ETL_OR_STD::random_access_iterator_tag>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool is_random_access_iterator_v = etl::is_random_access_iterator<T>::value;
+#endif
+
+  //*******************************************************
   template <typename T>
   struct is_input_iterator_concept
   {
     static ETL_CONSTANT bool value = etl::is_input_iterator<T>::value ||
-                                               etl::is_forward_iterator<T>::value ||
-                                               etl::is_bidirectional_iterator<T>::value ||
-                                               etl::is_random_iterator<T>::value;
+                                     etl::is_forward_iterator<T>::value ||
+                                     etl::is_bidirectional_iterator<T>::value ||
+                                     etl::is_random_iterator<T>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool is_input_iterator_concept_v = etl::is_input_iterator_concept<T>::value;
+#endif
+
+  //*******************************************************
   template <typename T>
   struct is_output_iterator_concept
   {
     static ETL_CONSTANT bool value = etl::is_output_iterator<T>::value ||
-                                               etl::is_forward_iterator<T>::value ||
-                                               etl::is_bidirectional_iterator<T>::value ||
-                                               etl::is_random_iterator<T>::value;
+                                     etl::is_forward_iterator<T>::value ||
+                                     etl::is_bidirectional_iterator<T>::value ||
+                                     etl::is_random_iterator<T>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool is_output_iterator_concept_v = etl::is_output_iterator_concept<T>::value;
+#endif
+
+  //*******************************************************
   template <typename T>
   struct is_forward_iterator_concept
   {
     static ETL_CONSTANT bool value = etl::is_forward_iterator<T>::value ||
-                                               etl::is_bidirectional_iterator<T>::value ||
-                                               etl::is_random_iterator<T>::value;
+                                     etl::is_bidirectional_iterator<T>::value ||
+                                     etl::is_random_iterator<T>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool is_forward_iterator_concept_v = etl::is_forward_iterator_concept<T>::value;
+#endif
+
+  //*******************************************************
   template <typename T>
   struct is_bidirectional_iterator_concept
   {
     static ETL_CONSTANT bool value = etl::is_bidirectional_iterator<T>::value ||
-                                               etl::is_random_iterator<T>::value;
+                                     etl::is_random_iterator<T>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool is_bidirectional_iterator_concept_v = etl::is_bidirectional_iterator_concept<T>::value;
+#endif
+
+  //*******************************************************
   // Deprecated
   template <typename T>
   struct is_random_iterator_concept
@@ -681,11 +828,22 @@ namespace etl
     static ETL_CONSTANT bool value = etl::is_random_iterator<T>::value;
   };
 
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool is_random_iterator_concept_v = etl::is_random_iterator_concept<T>::value;
+#endif
+
+  //*******************************************************
   template <typename T>
   struct is_random_access_iterator_concept
   {
     static ETL_CONSTANT bool value = etl::is_random_access_iterator<T>::value;
   };
+
+#if ETL_CPP17_SUPPORTED
+  template <typename T>
+  inline constexpr bool is_random_access_iterator_concept_v = etl::is_random_access_iterator_concept<T>::value;
+#endif
 }
 
 #endif

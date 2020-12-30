@@ -105,7 +105,7 @@ namespace etl
     {
       ETL_ASSERT(is_valid(inner_range), ETL_ERROR(multi_range_circular_reference));
 
-      if (inner != nullptr)
+      if (inner != ETL_NULLPTR)
       {
         inner->append(inner_range);
       }
@@ -237,11 +237,17 @@ namespace etl
   };
 
   //***************************************************************************
-  /// A class to determine the default step type, if possible.
+  /// multi_range
+  /// \tparam T The type to range over.
   //***************************************************************************
   template <typename T>
-  struct multi_range_step_types
+  class multi_range : public imulti_range
   {
+  public:
+
+    typedef T        value_type;
+    typedef const T& const_reference;
+
     //***************************************************************************
     /// 
     //***************************************************************************
@@ -317,66 +323,6 @@ namespace etl
 
       const value_type step_value;
     };
-
-  protected:
-
-    //***************************************************************************
-    /// Select the default step type based on the range type.
-    //***************************************************************************
-    template <typename U, bool AUTO_STEP>
-    struct default_step;
-
-    //**********************************
-    // Not arithmetic and not random access iterator.
-    template <typename U>
-    struct default_step<U, false>
-    {
-      step_type* operator()(const U& first_, const U& last_)
-      {
-        // Lets just assume we can go forward.
-        return &forward_stepper;
-      }
-
-      forward_step forward_stepper;
-    };
-
-    //**********************************
-    // Arithmetic or random access iterator.
-    template <typename U>
-    struct default_step<U, true>
-    {
-      step_type* operator()(const U& first_, const U& last_)
-      {
-        // Which direction are we stepping?
-        if (first_ < last_)
-        {
-          return &forward_stepper;
-        }
-        else
-        {
-          return &reverse_stepper;
-        }
-      }
-
-      forward_step forward_stepper;
-      reverse_step reverse_stepper;
-    };
-  };
-
-  //***************************************************************************
-  /// multi_range
-  /// \tparam T The type to range over.
-  //***************************************************************************
-  template <typename T>
-  class multi_range : public imulti_range, public multi_range_step_types<T>
-  {
-  public:
-
-    typedef typename multi_range_step_types<T>::step_type step_type;
-    typedef typename multi_range_step_types<T>::template default_step<T, etl::is_arithmetic<T>::value || etl::is_random_access_iterator<T>::value> default_step;
-
-    typedef T        value_type;
-    typedef const T& const_reference;
 
     //***************************************************************************
     /// 
@@ -511,7 +457,7 @@ namespace etl
     //***************************************************************************
     /// Initialises the ranges to the starting values.
     //***************************************************************************
-    void start() ETL_OVERRIDE
+    virtual void start() ETL_OVERRIDE
     {
       if (inner != ETL_NULLPTR)
       {
@@ -525,7 +471,7 @@ namespace etl
     //***************************************************************************
     /// Step to the next logical values in the ranges.
     //***************************************************************************
-    void next() ETL_OVERRIDE
+    virtual void next() ETL_OVERRIDE
     {
       has_completed = false;
 
@@ -579,7 +525,49 @@ namespace etl
     value_type last;    ///< The terminating value of the range.
     value_type current; ///< The current value of the range.
 
-    default_step default_stepper;
+    //***************************************************************************
+    /// Select the default step type based on the range type.
+    //***************************************************************************
+    template <typename U, bool AUTO_STEP>
+    struct default_step;
+
+    //**********************************
+    // Not arithmetic and not random access iterator.
+    template <typename U>
+    struct default_step<U, false>
+    {
+      step_type* operator()(const U& first_, const U& last_)
+      {
+        // Lets just assume we can go forward.
+        return &forward_stepper;
+      }
+
+      forward_step forward_stepper;
+    };
+
+    //**********************************
+    // Arithmetic or random access iterator.
+    template <typename U>
+    struct default_step<U, true>
+    {
+      step_type* operator()(const U& first_, const U& last_)
+      {
+        // Which direction are we stepping?
+        if (first_ < last_)
+        {
+          return &forward_stepper;
+        }
+        else
+        {
+          return &reverse_stepper;
+        }
+      }
+
+      forward_step forward_stepper;
+      reverse_step reverse_stepper;
+    };
+
+    default_step<T, etl::is_arithmetic<T>::value || etl::is_random_access_iterator<T>::value> default_stepper;
     step_type*   p_stepper;
 
     compare_type*     p_compare;

@@ -249,7 +249,7 @@ namespace etl
     typedef const T& const_reference;
 
     //***************************************************************************
-    /// 
+    /// Base class for all step types.
     //***************************************************************************
     struct step_type
     {
@@ -259,7 +259,7 @@ namespace etl
     };
 
     //***************************************************************************
-    /// 
+    /// Forward step type that increments by 1.
     //***************************************************************************
     struct forward_step : public step_type
     {
@@ -272,17 +272,19 @@ namespace etl
     };
 
     //***************************************************************************
-    /// 
+    /// Forward step type that increments by the specified amount.
     //***************************************************************************
     struct forward_step_by : public step_type
     {
       typedef T value_type;
 
+      //*****************************************
       explicit forward_step_by(const value_type& step_value_)
         : step_value(step_value_)
       {
       }
 
+      //*****************************************
       virtual void operator()(value_type& value) ETL_OVERRIDE
       {
         value += step_value;
@@ -292,12 +294,13 @@ namespace etl
     };
 
     //***************************************************************************
-    /// 
+    /// Reverse step type that decrements by 1.
     //***************************************************************************
     struct reverse_step : public step_type
     {
       typedef T value_type;
 
+      //*****************************************
       virtual void operator()(value_type& value) ETL_OVERRIDE
       {
         --value;
@@ -305,17 +308,19 @@ namespace etl
     };
 
     //***************************************************************************
-    /// 
+    /// reverse step type that decrements by the specified amount.
     //***************************************************************************
     struct reverse_step_by : public step_type
     {
       typedef T value_type;
 
+      //*****************************************
       explicit reverse_step_by(const value_type& step_value_)
         : step_value(step_value_)
       {
       }
 
+      //*****************************************
       virtual void operator()(value_type& value) ETL_OVERRIDE
       {
         value -= step_value;
@@ -325,7 +330,7 @@ namespace etl
     };
 
     //***************************************************************************
-    /// 
+    /// Base class for all compare types.
     //***************************************************************************
     struct compare_type
     {
@@ -335,12 +340,13 @@ namespace etl
     };
 
     //***************************************************************************
-    /// 
+    /// Compares using etl::not_equal_to
     //***************************************************************************
     struct not_equal_compare : public compare_type
     {
       typedef T value_type;
 
+      //*****************************************
       virtual bool operator()(const value_type& current, const value_type& last) const ETL_OVERRIDE
       {
         return etl::not_equal_to<value_type>()(current, last);
@@ -348,12 +354,13 @@ namespace etl
     };
 
     //***************************************************************************
-    /// 
+    /// Compares using etl::less
     //***************************************************************************
     struct less_than_compare : public compare_type
     {
       typedef T value_type;
 
+      //*****************************************
       virtual bool operator()(const value_type& current, const value_type& last) const ETL_OVERRIDE
       {
         return etl::less<value_type>()(current, last);
@@ -361,12 +368,13 @@ namespace etl
     };
 
     //***************************************************************************
-    /// 
+    /// Compares using etl::greater
     //***************************************************************************
     struct greater_than_compare : public compare_type
     {
       typedef T value_type;
 
+      //*****************************************
       virtual bool operator()(const value_type& current, const value_type& last) const ETL_OVERRIDE
       {
         return etl::greater<value_type>()(current, last);
@@ -568,10 +576,10 @@ namespace etl
     };
 
     default_step<T, etl::is_arithmetic<T>::value || etl::is_random_access_iterator<T>::value> default_stepper;
-    step_type*   p_stepper;
-
-    compare_type*     p_compare;
     not_equal_compare default_compare;
+
+    step_type*    p_stepper;
+    compare_type* p_compare;
   };
 }
 
